@@ -1,0 +1,47 @@
+import { useState } from 'react';
+import axios from 'axios';
+
+function SignIn() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post('http://localhost:3000/api/login', {
+        email,
+        password
+      });
+
+      if (res.data.redirect) {
+        window.location.href = res.data.redirect; // redirige vers la page souhaitée
+      } else {
+        alert(res.data.message);
+      }
+    } catch (err) {
+      alert('Erreur de connexion');
+    }
+  };
+
+  return (
+    <form onSubmit={handleLogin}>
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+      <input
+        type="password"
+        placeholder="Mot de passe"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+      <button type="submit">Se connecter</button>
+    </form>
+  );
+}
+
+export default SignIn;
