@@ -9,6 +9,8 @@ import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconifyIcon from 'components/base/IconifyIcon';
 import paths from 'routes/paths';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 interface User {
   [key: string]: string;
@@ -17,15 +19,33 @@ interface User {
 const Signup = () => {
   const [user, setUser] = useState<User>({ name: '', email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
+   const navigation = useNavigate();
+   const path = paths.signin
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(user);
-  };
+    
+        axios.post('http://localhost:3001/register',{ 
+          name:user.name,
+          email:user.email,
+          password:user.password,
+         })
+        .then( (result)=>{console.log(result);
+         navigation(path)
+        }
+        )
+        .catch(()=>
+          {console.log("erreur")
+      
+         alert('Email déja existant')
+         })
+
+
+        };
 
   return (
     <>
