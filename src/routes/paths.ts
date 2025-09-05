@@ -21,4 +21,5 @@ export default{
   signup: `/${rootPaths.authRoot}/signup`,
   forgotPassword: `/${rootPaths.authRoot}/forgot-password`,
   error: `/${rootPaths.pageRoot}/error/404`,
+  blocked: `/${rootPaths.pageRoot}/error/blocked`
 };

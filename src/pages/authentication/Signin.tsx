@@ -10,6 +10,10 @@ import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import IconifyIcon from 'components/base/IconifyIcon';
+import axios from 'axios';
+import paths from 'routes/paths';
+import { useNavigate } from 'react-router-dom';
+
 //import paths from 'routes/paths';
 
 interface User {
@@ -18,15 +22,46 @@ interface User {
 
 const Signin = () => {
   const [user, setUser] = useState<User>({ email: '', password: '' });
+  const [attempts, setAttempts] = useState(0)
   const [showPassword, setShowPassword] = useState(false);
-
+ const Navigate = useNavigate()
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    axios.post('http://localhost:3001/login', {
+      email:user.email,
+      password:user.password,
+    })
+    .then((resultat)=>{
+       console.log(resultat)
+       Navigate(paths.dashboard)
+
+      })
+    .catch((err)=>{
+       console.error(err);
+     
+       const newAttempts = attempts + 1;
+      setAttempts(newAttempts);
+
+      if (newAttempts >= 4) {
+        Navigate(paths.blocked); // Redirige vers une page "bloqué"
+      }
+      window.location.href = paths.signup
+
+    })
+     const newAttempts = attempts + 1;
+      setAttempts(newAttempts);
     console.log(user);
+    console.log(attempts)
+    if (newAttempts >= 4) {
+        Navigate(paths.blocked); // Redirige vers une page "bloqué"
+      }
+     
+    
   };
 
   return (
