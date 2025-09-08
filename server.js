@@ -5,43 +5,98 @@ const auth = require('./routes/routeUser');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const Register = require('./models/register')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
 dotenv.config();
-const PORT = process.env.PORT || 5000;  
+const PORT = process.env.PORT;  
 
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose.connect(process.env.MONGODB_URI)
 .then(()=>console.log("MongoDB connected"))
-.catch((err) => console.error(err));
-
+.catch((err) => {
+   console.error(err)
+   console.log('Mongodb not connected')
+});
 
 
 app.use(cors());
-app.use(express.json())
+app.use(express.json());
 
-app.use('/api', auth);
 app.post('/register',async (req, res)=>{
               
-const { name, email, password } = req.body;    
-         try {
+  const { email, password} = req.body;    
+    try {
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = await Register.create({ name, email, password:passwordHash });
+    const user = await Register.create({  email:email, password:passwordHash });
     res.json(user);
+        console.log(user)
+
   } catch (err) {
     console.error("Erreur lors de l'enregistrement :", err);
     res.status(500).json({ erreur: "Erreur de serveur" });
   }
        });
 
-       app.post('/login', (req, res)=>{
-
+/*app.post('/login', (req, res)=>{
+       const {email, password}= req.body;
+       Register.findOne({email: email})
+       .then(user=>{
+        if(!user)
+        {
+          return res.status(401).json({message: 'Utilisateur non trouvable'})
+        }
+         bcrypt.compare(password, user.password)
+         .then(isMatch=>
+         {
+          if(!isMatch)
+          {
+            return res.status(401).json({message: "Mot de Passe non correct"})
+            
+          }
+           res.status(200).json({user});
+         }
+        )
+        }
+         //Authentification reussi
+         )
+       .catch((err)=>
+      {
+        console.error(err);
+        res.status(500).json({message:'Erreur serveur'})
+      })
                
-       })
+       })*/
+// login with function asyc and await
+
+app.post('/login', async (req, res) => {
+  
+  console.log("le corps du devoir ", req.body)
+  try {
+    const { email, password } = req.body;
+
+    const user = await Register.findOne({ email: email });
+
+    if (!user) {
+      return res.status(401).json({ message: "Utilisateur non existant" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: "Mot de passe incorrect" });
+    }
+
+    // Authentification réussie
+    res.status(200).json({ user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
 
 
 
-app.listen(PORT, () => {
+
+// login with function asyc and await
+
+  app.listen(PORT, () => {
   console.log(`Serveur backend démarré sur le port: ${PORT}`);
 });
